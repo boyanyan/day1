@@ -1,0 +1,49 @@
+server:
+  port: 8005
+age: 18
+eureka:
+  client:
+    service-url:
+      defaultZone:  http://127.0.0.1:8090/eureka/
+#  instance:
+#    lease-renewal-interval-in-seconds: 1
+#    lease-expiration-duration-in-seconds: 2
+spring:
+  cloud:
+    config:
+      discovery:
+        service-id: configserver
+        enabled: true
+      profile: dev
+  application:
+    name: test
+     #把框架中隐藏的接口展示出来
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: "*"
+spring:
+  datasource:
+      driver-class-name: com.mysql.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/1008?allowMultiQueries=true
+      username: root
+      password: root
+  application:
+    name: demoCustomer
+  # redis:
+  #   port: 6379
+  #   host: localhost
+#  rabbitmq:
+#    host: localhost
+#    port: 5672
+#    username: chen
+#    password: chen
+mybatis:
+   mapper-locations: classpath:mybatis/*Mapper.xml
+#logging:
+#  path: D:/0626/logging
+#  level:
+#    com:
+#      example: debug
+aaa: 22222

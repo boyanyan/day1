@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zr.plant.mapper.PlantMapper">
+    <select id="findByPlantCode" parameterType="java.lang.String" resultType ="com.zr.plant.mode.Plant">
+        select *
+        from plant WHERE plantCode = #{plantCode}
+    </select>
+    <insert id="savePlant" parameterType="com.zr.plant.mode.Plant"  >
+        INSERT INTO plant (plantCode,plantDesc,plantStatus,legalPersonId,createTime,createName,createId,updateTime,updateName,updateId)
+        VALUES (#{plantCode},#{plantDesc},#{plantStatus},#{legalPersonId},#{createTime},#{createName},#{createId},#{updateTime},#{updateName},#{updateId})
+    </insert>
+    <select id="findByPlantId" parameterType="java.lang.Integer" resultType="com.zr.plant.mode.Plant" >
+        SELECT *
+        FROM plant WHERE id = #{id}
+    </select>
+    <update id="updatePlant" parameterType="com.zr.plant.mode.Plant">
+        UPDATE plant SET
+         plantDesc=#{plantDesc},
+         plantStatus = #{plantStatus},
+         updateTime=#{updateTime},
+         updateName=#{updateName},
+         updateId=#{updateId},
+         version=version+1
+        WHERE id = #{id} AND version = #{version}
+    </update>
+    <select id="queryPlantById" parameterType="java.lang.Integer" resultType="com.zr.plant.mode.Plant">
+        SELECT p.version,p.id,p.plantCode,p.plantDesc,p.plantStatus,p.legalPersonId,l.legalPersonCode,l.LegalPersonName
+        FROM plant p LEFT JOIN legalperson l ON p.legalPersonId = l.id
+        WHERE p.id = 1;
+    </select>
+    <select id="queryCount" parameterType="com.zr.plant.mode.vo.PlantSelectVo" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM plant
+        WHERE 1=1
+        <if test="legalPersonId!=null and legalPersonId!=0">
+           AND legalPersonId=#{legalPersonId}
+        </if>
+        <if test="plantCode!=null and plantCode!=''">
+           AND plantCode=#{plantCode}
+        </if>
+        <if test="plantDesc!=null and plantDesc!=''">
+           AND plantDesc=#{plantDesc}
+        </if>
+        <if test="plantStatus!=null">
+           AND plantStatus=#{plantStatus}
+        </if>
+    </select>
+    <select id="queryPage" parameterType="com.zr.plant.mode.vo.PlantSelectVo" resultType="com.zr.plant.mode.Plant">
+        SELECT *
+        FROM plant
+        WHERE 1=1
+        <if test="legalPersonId!=null and legalPersonId!=0">
+            AND legalPersonId=#{legalPersonId}
+        </if>
+        <if test="plantCode!=null and plantCode!=''">
+            AND plantCode=#{plantCode}
+        </if>
+        <if test="plantDesc!=null and plantDesc!=''">
+            AND plantDesc=#{plantDesc}
+        </if>
+        <if test="plantStatus!=null">
+            AND plantStatus=#{plantStatus}
+        </if>
+        limit #{offset}，#{pageSize}
+    </select>
+
+    <select id="findPlantAll" resultType="com.zr.plant.mode.Plant">
+          SELECT * FROM plant
+    </select>
+
+<!--
+    <select id="querySupplierByCodes" resultType ="com.example.dinquiry1uiry.model.InquirySupplier">
+        select *
+        from supplier WHERE code in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="queryPartsBySupplierCodes" resultType ="com.example.dinquiry1uiry.model.InquiryParts">
+        SELECT * FROM
+        parts pa LEFT JOIN p2s p2 ON pa.id = p2.partsId
+        LEFT JOIN supplier s ON p2.supplierId = s.id
+        WHERE s.`code` in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <insert id="save" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+        insert into inquirytotal (id, inquiryNo,date,legalPersonId,type,moneyType,isTax,startDate,endDate,status,createTime,createId,createName,updateId,updateName,updateTime)
+        values (#{id}, #{inquiryNo}, #{date}, #{legalPersonId},
+        #{type},#{moneyType},#{isTax},#{startDate},#{endDate},#{status}, #{createTime},#{createId},#{createName},#{updateId},#{updateName},#{updateTime})
+    </insert>
+
+    &lt;!&ndash; 批量插入备件信息 &ndash;&gt;
+    <insert id="saveInquiryParts">
+        INSERT INTO inquiryparts(
+        id,
+        partsId,
+        partsCode,
+        partsName,
+        inquiryId,
+        unit,
+        amount,
+        moneyType,
+        moq,
+        deliveryPeriod,
+        IntendDeliverDate,
+        createName,
+        createTime,
+        createId,
+        updateName,
+        updateTime,
+        updateId)
+        VALUES
+        <foreach collection="list" item="item" index="index" open="" close="" separator=",">
+            ( #{item.id},
+            #{item.partsId},
+            #{item.partsCode},
+            #{item.partsName},
+            #{item.inquiryId},
+            #{item.unit},
+            #{item.amount},
+            #{item.moneyType},
+            #{item.moq},
+            #{item.deliveryPeriod},
+            #{item.IntendDeliverDate},
+            #{item.createName},
+            #{item.createTime},
+            #{item.createId},
+            #{item.updateName},
+            #{item.updateTime},
+            #{item.updateId})
+        </foreach>
+    </insert>
+
+    &lt;!&ndash; 批量插入供应商信息 &ndash;&gt;
+    <insert id="saveSupplier">
+        INSERT INTO inquirysupplier(
+        id,
+        supplierId,
+        inquiryId,
+        supplierCode,
+        supplierName,
+        createName,
+        createTime,
+        createId,
+        updateName,
+        updateTime,
+        updateId)
+        VALUES
+        <foreach collection="list" item="item" index="index" open="" close="" separator=",">
+            ( #{item.id},
+            #{item.supplierId},
+            #{item.inquiryId},
+            #{item.supplierCode},
+            #{item.supplierName},
+            #{item.createName},
+            #{item.createTime},
+            #{item.createId},
+            #{item.updateName},
+            #{item.updateTime},
+            #{item.updateId})
+        </foreach>
+    </insert>
+
+    <update id="updateInquiry">
+        UPDATE inquirytotal SET
+        inquiryNo = #{inquiryNo}
+        ,date = #{date},
+        legalPersonId = #{legalPersonId},
+        type = #{type},
+        moneyType = #{moneyType},
+        isTax = #{isTax},
+        startDate = #{startDate},
+        endDate = #{endDate},
+        status = #{status},
+        updateName = #{updateName},
+        updateTime = #{updateTime},
+        updateId = #{updateId},
+         version=version+1
+        where id = #{id} and version=#{version}
+    </update>
+
+
+    &lt;!&ndash;例子    批量删除批量更新
+    <delete id="deleteList" parameterType="java.util.List">
+        delete from MT_MaterialCostPrice
+        <where>
+            id in (
+            <foreach item="id" index="index" collection="list"
+                     separator=","> #{id} </foreach>
+            )
+        </where>
+    </delete>
+    <update id="updateList" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            update MT_MaterialCostPrice
+            <set>
+                endTime = #{item.endTime}
+            </set>
+            where id = #{item.id}
+        </foreach>
+    </update>
+    &ndash;&gt;
+
+    &lt;!&ndash;分页查询数据&ndash;&gt;
+    <select id="queryPage" parameterType="com.example.dinquiry1uiry.model.vo.InquiryQueryVo"
+            resultType="com.example.dinquiry1uiry.model.InquiryTotal">
+        select *
+        FROM inquirytotal t left join inquirysupplier inq on t.id = inq.inquiryId
+        where 1=1
+        <if test="legalPersonId!=null">
+            and t.legalPersonId =#{legalPersonId}
+        </if>
+        <if test="type!=null">
+            and t.type =#{type}
+        </if>
+        <if test="inquiryNo!=null and inquiryNo!=''">
+            and t.inquiryNo =#{inquiryNo}
+        </if>
+        <if test="createStartTime!=null">
+            <![CDATA[ and t.createTime >=#{createStartTime} ]]>
+        </if>
+        <if test="createEndTime!=null">
+            <![CDATA[ and t.createTime <=#{createEndTime} ]]>
+        </if>
+        <if test="supplierId!=null">
+            and  inq.id = #{supplierId}
+            &lt;!&ndash;<foreach item="item" index="index" collection="legalPersonCodeLoginUser" open="(" separator="," close=")">#{item}</foreach>&ndash;&gt;
+        </if>
+        order by t.createTime DESC
+        limit #{offset} , #{pageSize}
+    </select>
+    &lt;!&ndash;分页查询总条数&ndash;&gt;
+    <select id="queryCount" parameterType="com.example.dinquiry1uiry.model.vo.InquiryQueryVo"
+            resultType="java.lang.Integer">
+        select count(*)
+        FROM inquirytotal t left join inquirysupplier inq on t.id = inq.inquiryId
+        where 1=1
+        <if test="legalPersonId!=null">
+            and t.legalPersonId =#{legalPersonId}
+        </if>
+        <if test="type!=null">
+            and t.type =#{type}
+        </if>
+        <if test="inquiryNo!=null and inquiryNo!=''">
+            and t.inquiryNo =#{inquiryNo}
+        </if>
+        <if test="createStartTime!=null">
+            <![CDATA[ and t.createTime >=#{createStartTime} ]]>
+        </if>
+        <if test="createEndTime!=null">
+            <![CDATA[ and t.createTime <=#{createEndTime} ]]>
+        </if>
+        <if test="supplierId!=null">
+            and  inq.id = #{supplierId}
+            &lt;!&ndash;<foreach item="item" index="index" collection="legalPersonCodeLoginUser" open="(" separator="," close=")">#{item}</foreach>&ndash;&gt;
+        </if>
+    </select>-->
+
+</mapper>
